@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
@@ -5,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const User = require("./models/user");
 const Checkin = require("./models/checkin");
 const auth = require("./middleware/auth");
-require("dotenv").config();
+const aiService = require("./services/aiService");
 
 const app = express();
 
@@ -35,24 +36,17 @@ app.get("/", (req, res) => {
 app.post("/api/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    
-    // Check if user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
       return res.status(400).json({ error: "User already exists" });
     }
-
-    // Create new user
     const user = new User({ username, email, password });
     await user.save();
-
-    // Generate JWT token
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '7d' }
     );
-
     res.status(201).json({
       message: "User created successfully",
       token,
@@ -72,26 +66,19 @@ app.post("/api/register", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    
-    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
-
-    // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
-
-    // Generate JWT token
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '7d' }
     );
-
     res.json({
       message: "Login successful",
       token,
@@ -122,7 +109,7 @@ app.get("/api/profile", auth, async (req, res) => {
   }
 });
 
-// Check-in route (now protected)
+// Check-in route (POST)
 app.post("/api/checkin", auth, async (req, res) => {
   try {
     const { 
@@ -137,9 +124,9 @@ app.post("/api/checkin", auth, async (req, res) => {
       nutritionQuality, 
       workoutMotivation, 
       fitnessGoal, 
-      notes 
+      notes,
+      weight
     } = req.body;
-    
     const checkin = new Checkin({ 
       user: req.user._id,
       mood, 
@@ -153,7 +140,8 @@ app.post("/api/checkin", auth, async (req, res) => {
       nutritionQuality,
       workoutMotivation,
       fitnessGoal,
-      notes
+      notes,
+      weight
     });
     await checkin.save();
     console.log("New enhanced check-in saved to MongoDB:", checkin);
@@ -164,7 +152,7 @@ app.post("/api/checkin", auth, async (req, res) => {
   }
 });
 
-// Get all check-ins route (now protected and user-specific)
+// Get all check-ins route (GET)
 app.get("/api/checkins", auth, async (req, res) => {
   try {
     const checkins = await Checkin.find({ user: req.user._id }).sort({ timestamp: -1 });
@@ -172,6 +160,73 @@ app.get("/api/checkins", auth, async (req, res) => {
   } catch (error) {
     console.error("Error fetching check-ins:", error);
     res.status(500).json({ error: "Failed to fetch check-ins" });
+  }
+});
+
+// AI Analysis route
+app.get("/api/ai/analysis", auth, async (req, res) => {
+  try {
+    const checkins = await Checkin.find({ user: req.user._id }).sort({ timestamp: -1 });
+    if (checkins.length === 0) {
+      return res.json({ 
+        analysis: "Welcome to FitCoach AI! Complete your first check-in to get personalized insights and recommendations." 
+      });
+    }
+    const analysis = await aiService.analyzeCheckins(checkins);
+    res.json({ analysis });
+  } catch (error) {
+    console.error("AI Analysis error:", error);
+    res.status(500).json({ error: "Failed to generate AI analysis" });
+  }
+});
+
+// AI Workout Recommendation route
+app.post("/api/ai/workout", auth, async (req, res) => {
+  try {
+    const { checkin } = req.body;
+    const recommendation = await aiService.generateWorkoutRecommendation(checkin);
+    res.json({ recommendation });
+  } catch (error) {
+    console.error("AI Workout Recommendation error:", error);
+    res.status(500).json({ error: "Failed to generate workout recommendation" });
+  }
+});
+
+// AI Health Question route
+app.post("/api/ai/question", auth, async (req, res) => {
+  try {
+    const { question } = req.body;
+    const checkins = await Checkin.find({ user: req.user._id }).sort({ timestamp: -1 });
+    const answer = await aiService.answerHealthQuestion(question, checkins);
+    res.json({ answer });
+  } catch (error) {
+    console.error("AI Health Question error:", error);
+    res.status(500).json({ error: "Failed to answer health question" });
+  }
+});
+
+// Get weight goal
+app.get("/api/weight-goal", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.json({ weightGoal: user.weightGoal });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to get weight goal" });
+  }
+});
+
+// Update weight goal
+app.put("/api/weight-goal", auth, async (req, res) => {
+  try {
+    const { weightGoal } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { weightGoal },
+      { new: true }
+    );
+    res.json({ weightGoal: user.weightGoal });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update weight goal" });
   }
 });
 

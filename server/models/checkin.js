@@ -76,6 +76,12 @@ const checkinSchema = new mongoose.Schema({
         maxlength: 500
     },
     
+    // Weight tracking
+    weight: {
+        type: Number,
+        min: 0,
+        description: 'Body weight in pounds'
+    },
     timestamp: {
         type: Date,
         default: Date.now

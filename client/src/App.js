@@ -3,11 +3,15 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import CheckInForm from "./components/CheckInForm";
 import CheckInList from "./components/CheckInList";
+import AIAnalysis from "./components/AIAnalysis";
+import AIChat from "./components/AIChat";
+import ProgressDashboard from './components/ProgressDashboard';
 
 function App() {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [showRegister, setShowRegister] = useState(false);
+  const [activeTab, setActiveTab] = useState('checkin'); // 'checkin', 'analysis', 'chat'
 
   useEffect(() => {
     // Check if user is already logged in
@@ -84,6 +88,31 @@ function App() {
     );
   }
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'checkin':
+        return (
+          <>
+            <CheckInForm />
+            <CheckInList />
+          </>
+        );
+      case 'analysis':
+        return <AIAnalysis />;
+      case 'chat':
+        return <AIChat />;
+      case 'progress':
+        return <ProgressDashboard />;
+      default:
+        return (
+          <>
+            <CheckInForm />
+            <CheckInList />
+          </>
+        );
+    }
+  };
+
   return (
     <div>
       <div style={{ 
@@ -112,8 +141,77 @@ function App() {
           </button>
         </div>
       </div>
-      <CheckInForm />
-      <CheckInList />
+
+      {/* Navigation Tabs */}
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "center", 
+        padding: "1rem",
+        backgroundColor: "white",
+        borderBottom: "1px solid #dee2e6"
+      }}>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <button 
+            onClick={() => setActiveTab('checkin')}
+            style={{
+              padding: "0.75rem 1.5rem",
+              backgroundColor: activeTab === 'checkin' ? "#007bff" : "#f8f9fa",
+              color: activeTab === 'checkin' ? "white" : "#333",
+              border: "1px solid #dee2e6",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: activeTab === 'checkin' ? "bold" : "normal"
+            }}
+          >
+            📝 Check-ins
+          </button>
+          <button 
+            onClick={() => setActiveTab('analysis')}
+            style={{
+              padding: "0.75rem 1.5rem",
+              backgroundColor: activeTab === 'analysis' ? "#007bff" : "#f8f9fa",
+              color: activeTab === 'analysis' ? "white" : "#333",
+              border: "1px solid #dee2e6",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: activeTab === 'analysis' ? "bold" : "normal"
+            }}
+          >
+            🤖 AI Analysis
+          </button>
+          <button 
+            onClick={() => setActiveTab('chat')}
+            style={{
+              padding: "0.75rem 1.5rem",
+              backgroundColor: activeTab === 'chat' ? "#007bff" : "#f8f9fa",
+              color: activeTab === 'chat' ? "white" : "#333",
+              border: "1px solid #dee2e6",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: activeTab === 'chat' ? "bold" : "normal"
+            }}
+          >
+            💬 Ask AI
+          </button>
+          <button 
+            onClick={() => setActiveTab('progress')}
+            style={{
+              padding: "0.75rem 1.5rem",
+              backgroundColor: activeTab === 'progress' ? "#007bff" : "#f8f9fa",
+              color: activeTab === 'progress' ? "white" : "#333",
+              border: "1px solid #dee2e6",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: activeTab === 'progress' ? "bold" : "normal"
+            }}
+          >
+            📈 Progress
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {renderTabContent()}
     </div>
   );
 }

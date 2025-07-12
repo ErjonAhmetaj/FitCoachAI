@@ -21,10 +21,25 @@ function CheckInList() {
           'Authorization': `Bearer ${token}`
         }
       });
+      
+      if (!response.ok) {
+        console.error('Failed to fetch check-ins:', response.status, response.statusText);
+        setCheckins([]);
+        return;
+      }
+      
       const data = await response.json();
-      setCheckins(data);
+      
+      // Ensure data is an array
+      if (Array.isArray(data)) {
+        setCheckins(data);
+      } else {
+        console.error('Expected array but got:', typeof data, data);
+        setCheckins([]);
+      }
     } catch (error) {
       console.error('Error fetching check-ins:', error);
+      setCheckins([]);
     }
   };
 
@@ -53,14 +68,17 @@ function CheckInList() {
   // Helper to show N/A for missing values
   const show = (val, suffix = '') => (val === undefined || val === null || val === '' ? 'N/A' : `${val}${suffix}`);
 
+  // Ensure checkins is always an array
+  const checkinsArray = Array.isArray(checkins) ? checkins : [];
+
   return (
     <div style={{ padding: "2rem", maxWidth: "1000px", margin: "auto" }}>
       <h2>Recent Health Check-ins</h2>
-      {checkins.length === 0 ? (
+      {checkinsArray.length === 0 ? (
         <p>No check-ins yet. Complete your first enhanced check-in above!</p>
       ) : (
         <div style={{ display: 'grid', gap: '1.5rem' }}>
-          {checkins.map((checkin, index) => (
+          {checkinsArray.map((checkin, index) => (
             <div 
               key={index} 
               style={{
@@ -93,6 +111,7 @@ function CheckInList() {
                   <h4 style={{ margin: '0 0 0.5rem 0', color: '#007bff' }}>Core Wellness</h4>
                   <p><strong>Energy:</strong> {show(checkin.energy, '/10')}</p>
                   <p><strong>Soreness:</strong> {show(checkin.soreness, '/10')}</p>
+                  <p><strong>Weight:</strong> {show(checkin.weight, ' lbs')}</p>
                 </div>
 
                 {/* Sleep */}

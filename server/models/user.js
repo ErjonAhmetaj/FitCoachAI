@@ -24,6 +24,11 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  weightGoal: {
+    type: Number,
+    min: 0,
+    description: 'Target body weight in pounds'
   }
 });
 

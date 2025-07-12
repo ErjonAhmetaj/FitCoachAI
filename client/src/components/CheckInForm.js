@@ -25,6 +25,8 @@ function CheckInForm() {
   
   // Additional notes
   const [notes, setNotes] = useState("");
+  // Weight
+  const [weight, setWeight] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   // Function to handle form submit
@@ -57,7 +59,8 @@ function CheckInForm() {
           nutritionQuality, 
           workoutMotivation, 
           fitnessGoal, 
-          notes 
+          notes,
+          weight: weight ? Number(weight) : undefined
         })
       });
 
@@ -76,6 +79,7 @@ function CheckInForm() {
         setWorkoutMotivation(5);
         setFitnessGoal("General Fitness");
         setNotes("");
+        setWeight("");
         // Trigger a page refresh to update the check-ins list
         window.location.reload();
       } else {
@@ -136,6 +140,19 @@ function CheckInForm() {
               onChange={(e) => setSoreness(Number(e.target.value))}
               required
               style={{ width: '100%' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label>Weight (lbs):</label>
+            <input
+              type="number"
+              min="0"
+              step="0.1"
+              value={weight}
+              onChange={e => setWeight(e.target.value)}
+              placeholder="Enter your weight in pounds"
+              style={{ width: '100%', padding: '0.5rem' }}
             />
           </div>
         </div>
