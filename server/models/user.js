@@ -29,7 +29,12 @@ const userSchema = new mongoose.Schema({
     type: Number,
     min: 0,
     description: 'Target body weight in pounds'
-  }
+  },
+  friends: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    description: 'List of user friends'
+  }]
 });
 
 // Hash password before saving

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Card, CardContent, Typography, Box, Grid, Divider } from '@mui/material';
 
 function CheckInList() {
   const [checkins, setCheckins] = useState([]);
@@ -72,95 +73,74 @@ function CheckInList() {
   const checkinsArray = Array.isArray(checkins) ? checkins : [];
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "1000px", margin: "auto" }}>
-      <h2>Recent Health Check-ins</h2>
+    <Box sx={{ p: 3, maxWidth: 1000, mx: 'auto' }}>
+      <Typography variant="h5" color="primary" gutterBottom>Recent Health Check-ins</Typography>
       {checkinsArray.length === 0 ? (
-        <p>No check-ins yet. Complete your first enhanced check-in above!</p>
+        <Typography>No check-ins yet. Complete your first enhanced check-in above!</Typography>
       ) : (
-        <div style={{ display: 'grid', gap: '1.5rem' }}>
+        <Grid container spacing={3}>
           {checkinsArray.map((checkin, index) => (
-            <div 
-              key={index} 
-              style={{
-                padding: '1.5rem',
-                border: '1px solid #ddd',
-                borderRadius: '12px',
-                backgroundColor: '#f9f9f9',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }}
-            >
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                marginBottom: '1rem',
-                paddingBottom: '0.5rem',
-                borderBottom: '1px solid #eee'
-              }}>
-                <h3 style={{ margin: 0, color: '#333' }}>
-                  {getMoodEmoji(checkin.mood)} {show(checkin.mood)} Mood
-                </h3>
-                <span style={{ color: '#666', fontSize: '0.9rem' }}>
-                  {new Date(checkin.timestamp).toLocaleString()}
-                </span>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                {/* Core Wellness */}
-                <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '8px' }}>
-                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#007bff' }}>Core Wellness</h4>
-                  <p><strong>Energy:</strong> {show(checkin.energy, '/10')}</p>
-                  <p><strong>Soreness:</strong> {show(checkin.soreness, '/10')}</p>
-                  <p><strong>Weight:</strong> {show(checkin.weight, ' lbs')}</p>
-                </div>
-
-                {/* Sleep */}
-                <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '8px' }}>
-                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#28a745' }}>Sleep</h4>
-                  <p><strong>Hours:</strong> {show(checkin.sleepHours, 'h')}</p>
-                  <p><strong>Quality:</strong> {checkin.sleepQuality ? getSleepQualityEmoji(checkin.sleepQuality) + ' ' + checkin.sleepQuality : 'N/A'}</p>
-                </div>
-
-                {/* Stress & Recovery */}
-                <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '8px' }}>
-                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#ffc107' }}>Stress & Recovery</h4>
-                  <p><strong>Stress:</strong> {show(checkin.stressLevel, '/10')}</p>
-                  <p><strong>Recovery:</strong> {show(checkin.recovery)}</p>
-                </div>
-
-                {/* Hydration & Nutrition */}
-                <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '8px' }}>
-                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#17a2b8' }}>Hydration & Nutrition</h4>
-                  <p><strong>Hydration:</strong> {show(checkin.hydration, '/10')}</p>
-                  <p><strong>Nutrition:</strong> {show(checkin.nutritionQuality)}</p>
-                </div>
-
-                {/* Fitness */}
-                <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '8px' }}>
-                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#dc3545' }}>Fitness</h4>
-                  <p><strong>Motivation:</strong> {show(checkin.workoutMotivation, '/10')}</p>
-                  <p><strong>Goal:</strong> {show(checkin.fitnessGoal)}</p>
-                </div>
-              </div>
-
-              {/* Notes */}
-              {checkin.notes && (
-                <div style={{ 
-                  marginTop: '1rem', 
-                  padding: '1rem', 
-                  backgroundColor: 'white', 
-                  borderRadius: '8px',
-                  borderLeft: '4px solid #007bff'
-                }}>
-                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#007bff' }}>Notes</h4>
-                  <p style={{ margin: 0, fontStyle: 'italic' }}>"{checkin.notes}"</p>
-                </div>
-              )}
-            </div>
+            <Grid item xs={12} md={6} key={index}>
+              <Card elevation={3} sx={{ borderRadius: 3 }}>
+                <CardContent>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="h6" color="secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {getMoodEmoji(checkin.mood)} {show(checkin.mood)} Mood
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {new Date(checkin.timestamp).toLocaleString()}
+                    </Typography>
+                  </Box>
+                  <Divider sx={{ mb: 2 }} />
+                  <Grid container spacing={2}>
+                    {/* Core Wellness */}
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="subtitle2" color="primary">Core Wellness</Typography>
+                      <Typography>Energy: {show(checkin.energy, '/10')}</Typography>
+                      <Typography>Soreness: {show(checkin.soreness, '/10')}</Typography>
+                      <Typography>Weight: {show(checkin.weight, ' lbs')}</Typography>
+                    </Grid>
+                    {/* Sleep */}
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="subtitle2" color="primary">Sleep</Typography>
+                      <Typography>Hours: {show(checkin.sleepHours, 'h')}</Typography>
+                      <Typography>Quality: {checkin.sleepQuality ? getSleepQualityEmoji(checkin.sleepQuality) + ' ' + checkin.sleepQuality : 'N/A'}</Typography>
+                    </Grid>
+                    {/* Stress & Recovery */}
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="subtitle2" color="primary">Stress & Recovery</Typography>
+                      <Typography>Stress: {show(checkin.stressLevel, '/10')}</Typography>
+                      <Typography>Recovery: {show(checkin.recovery)}</Typography>
+                    </Grid>
+                    {/* Hydration & Nutrition */}
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="subtitle2" color="primary">Hydration & Nutrition</Typography>
+                      <Typography>Hydration: {show(checkin.hydration, '/10')}</Typography>
+                      <Typography>Nutrition: {show(checkin.nutritionQuality)}</Typography>
+                    </Grid>
+                    {/* Fitness */}
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="subtitle2" color="primary">Fitness</Typography>
+                      <Typography>Motivation: {show(checkin.workoutMotivation, '/10')}</Typography>
+                      <Typography>Goal: {show(checkin.fitnessGoal)}</Typography>
+                    </Grid>
+                  </Grid>
+                  {/* Notes */}
+                  {checkin.notes && (
+                    <Box sx={{ mt: 2, p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
+                      <Typography variant="subtitle2" color="primary">Notes</Typography>
+                      <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                        "{checkin.notes}"
+                      </Typography>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
           ))}
-        </div>
+        </Grid>
       )}
-    </div>
+    </Box>
   );
 }
 

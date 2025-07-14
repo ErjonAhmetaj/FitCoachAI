@@ -1,45 +1,39 @@
 import { useState } from "react";
+import { Card, CardContent, Typography, Box, TextField, Slider, Select, MenuItem, Button, InputLabel, FormControl } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-// Enhanced component for comprehensive daily health check-in
 function CheckInForm() {
   // Core wellness metrics
   const [mood, setMood] = useState("Good");
   const [energy, setEnergy] = useState(5);
   const [soreness, setSoreness] = useState(5);
-  
   // Sleep tracking
   const [sleepHours, setSleepHours] = useState(8);
   const [sleepQuality, setSleepQuality] = useState("Good");
-  
   // Stress and recovery
   const [stressLevel, setStressLevel] = useState(5);
   const [recovery, setRecovery] = useState("Mostly Recovered");
-  
   // Hydration and nutrition
   const [hydration, setHydration] = useState(5);
   const [nutritionQuality, setNutritionQuality] = useState("Good");
-  
   // Fitness and goals
   const [workoutMotivation, setWorkoutMotivation] = useState(5);
   const [fitnessGoal, setFitnessGoal] = useState("General Fitness");
-  
   // Additional notes
   const [notes, setNotes] = useState("");
   // Weight
   const [weight, setWeight] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  // Function to handle form submit
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting enhanced check-in...");
-
     const token = localStorage.getItem('token');
     if (!token) {
       console.error("No authentication token found");
       return;
     }
-
     try {
       const response = await fetch("http://localhost:5050/api/checkin", {
         method: "POST",
@@ -63,10 +57,8 @@ function CheckInForm() {
           weight: weight ? Number(weight) : undefined
         })
       });
-
       if (response.ok) {
         setSubmitted(true);
-        // Reset form
         setMood("Good");
         setEnergy(5);
         setSoreness(5);
@@ -80,8 +72,7 @@ function CheckInForm() {
         setFitnessGoal("General Fitness");
         setNotes("");
         setWeight("");
-        // Trigger a page refresh to update the check-ins list
-        window.location.reload();
+        setTimeout(() => navigate('/'), 1200); // Redirect after short delay
       } else {
         console.error("Failed to submit check-in");
       }
@@ -91,240 +82,119 @@ function CheckInForm() {
   };
 
   return (
-    <div style={{ padding: "2rem", maxWidth: "800px", margin: "auto" }}>
-      <h2>Daily Health Check-In</h2>
-      {submitted && <p style={{ color: "green" }}>✅ Enhanced check-in submitted!</p>}
-
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
-        
-        {/* Core Wellness Section */}
-        <div style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '8px' }}>
-          <h3 style={{ marginTop: 0, color: '#333' }}>Core Wellness</h3>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Mood:</label>
-            <select 
-              value={mood} 
-              onChange={(e) => setMood(e.target.value)}
-              required
-              style={{ width: '100%', padding: '0.5rem' }}
-            >
-              <option value="Excellent">Excellent</option>
-              <option value="Good">Good</option>
-              <option value="Okay">Okay</option>
-              <option value="Poor">Poor</option>
-              <option value="Terrible">Terrible</option>
-            </select>
-          </div>
-
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Energy Level (1–10): {energy}</label>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={energy}
-              onChange={(e) => setEnergy(Number(e.target.value))}
-              required
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Soreness Level (1–10): {soreness}</label>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={soreness}
-              onChange={(e) => setSoreness(Number(e.target.value))}
-              required
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Weight (lbs):</label>
-            <input
-              type="number"
-              min="0"
-              step="0.1"
-              value={weight}
-              onChange={e => setWeight(e.target.value)}
-              placeholder="Enter your weight in pounds"
-              style={{ width: '100%', padding: '0.5rem' }}
-            />
-          </div>
-        </div>
-
-        {/* Sleep Section */}
-        <div style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '8px' }}>
-          <h3 style={{ marginTop: 0, color: '#333' }}>Sleep</h3>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Hours of Sleep: {sleepHours}</label>
-            <input
-              type="range"
-              min="0"
-              max="24"
-              value={sleepHours}
-              onChange={(e) => setSleepHours(Number(e.target.value))}
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Sleep Quality:</label>
-            <select 
-              value={sleepQuality} 
-              onChange={(e) => setSleepQuality(e.target.value)}
-              style={{ width: '100%', padding: '0.5rem' }}
-            >
-              <option value="Excellent">Excellent</option>
-              <option value="Good">Good</option>
-              <option value="Fair">Fair</option>
-              <option value="Poor">Poor</option>
-              <option value="Terrible">Terrible</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Stress & Recovery Section */}
-        <div style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '8px' }}>
-          <h3 style={{ marginTop: 0, color: '#333' }}>Stress & Recovery</h3>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Stress Level (1–10): {stressLevel}</label>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={stressLevel}
-              onChange={(e) => setStressLevel(Number(e.target.value))}
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Recovery Status:</label>
-            <select 
-              value={recovery} 
-              onChange={(e) => setRecovery(e.target.value)}
-              style={{ width: '100%', padding: '0.5rem' }}
-            >
-              <option value="Fully Recovered">Fully Recovered</option>
-              <option value="Mostly Recovered">Mostly Recovered</option>
-              <option value="Somewhat Recovered">Somewhat Recovered</option>
-              <option value="Still Sore">Still Sore</option>
-              <option value="Very Sore">Very Sore</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Hydration & Nutrition Section */}
-        <div style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '8px' }}>
-          <h3 style={{ marginTop: 0, color: '#333' }}>Hydration & Nutrition</h3>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Hydration Level (1–10): {hydration}</label>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={hydration}
-              onChange={(e) => setHydration(Number(e.target.value))}
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Nutrition Quality:</label>
-            <select 
-              value={nutritionQuality} 
-              onChange={(e) => setNutritionQuality(e.target.value)}
-              style={{ width: '100%', padding: '0.5rem' }}
-            >
-              <option value="Excellent">Excellent</option>
-              <option value="Good">Good</option>
-              <option value="Fair">Fair</option>
-              <option value="Poor">Poor</option>
-              <option value="Very Poor">Very Poor</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Fitness Section */}
-        <div style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '8px' }}>
-          <h3 style={{ marginTop: 0, color: '#333' }}>Fitness</h3>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Workout Motivation (1–10): {workoutMotivation}</label>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={workoutMotivation}
-              onChange={(e) => setWorkoutMotivation(Number(e.target.value))}
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Fitness Goal:</label>
-            <select 
-              value={fitnessGoal} 
-              onChange={(e) => setFitnessGoal(e.target.value)}
-              style={{ width: '100%', padding: '0.5rem' }}
-            >
-              <option value="Muscle Gain">Muscle Gain</option>
-              <option value="Fat Loss">Fat Loss</option>
-              <option value="Endurance">Endurance</option>
-              <option value="Strength">Strength</option>
-              <option value="General Fitness">General Fitness</option>
-              <option value="Recovery">Recovery</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Notes Section */}
-        <div style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '8px' }}>
-          <h3 style={{ marginTop: 0, color: '#333' }}>Additional Notes</h3>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <label>Notes (optional):</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any additional thoughts, goals, or observations..."
-              maxLength="500"
-              style={{ 
-                width: '100%', 
-                padding: '0.5rem', 
-                minHeight: '100px',
-                resize: 'vertical'
-              }}
-            />
-            <small style={{ color: '#666' }}>{notes.length}/500 characters</small>
-          </div>
-        </div>
-
-        <button 
-          type="submit"
-          style={{
-            padding: '1rem 2rem',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '1.1rem',
-            cursor: 'pointer',
-            fontWeight: 'bold'
-          }}
-        >
-          Submit Enhanced Check-In
-        </button>
-      </form>
-    </div>
+    <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4 }}>
+      <Card elevation={4}>
+        <CardContent>
+          <Typography variant="h5" color="primary" gutterBottom>Daily Health Check-In</Typography>
+          {submitted && <Typography color="success.main" sx={{ mb: 2 }}>✅ Enhanced check-in submitted!</Typography>}
+          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {/* Core Wellness Section */}
+            <Box>
+              <Typography variant="h6" color="secondary" gutterBottom>Core Wellness</Typography>
+              <FormControl fullWidth sx={{ mb: 2 }}>
+                <InputLabel>Mood</InputLabel>
+                <Select value={mood} label="Mood" onChange={e => setMood(e.target.value)} required>
+                  <MenuItem value="Excellent">Excellent</MenuItem>
+                  <MenuItem value="Good">Good</MenuItem>
+                  <MenuItem value="Okay">Okay</MenuItem>
+                  <MenuItem value="Poor">Poor</MenuItem>
+                  <MenuItem value="Terrible">Terrible</MenuItem>
+                </Select>
+              </FormControl>
+              <Typography gutterBottom>Energy Level: {energy}</Typography>
+              <Slider value={energy} min={1} max={10} step={1} onChange={(_, v) => setEnergy(v)} valueLabelDisplay="auto" sx={{ mb: 2 }} />
+              <Typography gutterBottom>Soreness Level: {soreness}</Typography>
+              <Slider value={soreness} min={1} max={10} step={1} onChange={(_, v) => setSoreness(v)} valueLabelDisplay="auto" sx={{ mb: 2 }} />
+              <TextField label="Weight (lbs)" type="number" min="0" step="0.1" value={weight} onChange={e => setWeight(e.target.value)} fullWidth sx={{ mb: 2 }} />
+            </Box>
+            {/* Sleep Section */}
+            <Box>
+              <Typography variant="h6" color="secondary" gutterBottom>Sleep</Typography>
+              <Typography gutterBottom>Hours of Sleep: {sleepHours}</Typography>
+              <Slider value={sleepHours} min={0} max={24} step={1} onChange={(_, v) => setSleepHours(v)} valueLabelDisplay="auto" sx={{ mb: 2 }} />
+              <FormControl fullWidth>
+                <InputLabel>Sleep Quality</InputLabel>
+                <Select value={sleepQuality} label="Sleep Quality" onChange={e => setSleepQuality(e.target.value)}>
+                  <MenuItem value="Excellent">Excellent</MenuItem>
+                  <MenuItem value="Good">Good</MenuItem>
+                  <MenuItem value="Fair">Fair</MenuItem>
+                  <MenuItem value="Poor">Poor</MenuItem>
+                  <MenuItem value="Terrible">Terrible</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            {/* Stress & Recovery Section */}
+            <Box>
+              <Typography variant="h6" color="secondary" gutterBottom>Stress & Recovery</Typography>
+              <Typography gutterBottom>Stress Level: {stressLevel}</Typography>
+              <Slider value={stressLevel} min={1} max={10} step={1} onChange={(_, v) => setStressLevel(v)} valueLabelDisplay="auto" sx={{ mb: 2 }} />
+              <FormControl fullWidth>
+                <InputLabel>Recovery Status</InputLabel>
+                <Select value={recovery} label="Recovery Status" onChange={e => setRecovery(e.target.value)}>
+                  <MenuItem value="Fully Recovered">Fully Recovered</MenuItem>
+                  <MenuItem value="Mostly Recovered">Mostly Recovered</MenuItem>
+                  <MenuItem value="Somewhat Recovered">Somewhat Recovered</MenuItem>
+                  <MenuItem value="Still Sore">Still Sore</MenuItem>
+                  <MenuItem value="Very Sore">Very Sore</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            {/* Hydration & Nutrition Section */}
+            <Box>
+              <Typography variant="h6" color="secondary" gutterBottom>Hydration & Nutrition</Typography>
+              <Typography gutterBottom>Hydration Level: {hydration}</Typography>
+              <Slider value={hydration} min={1} max={10} step={1} onChange={(_, v) => setHydration(v)} valueLabelDisplay="auto" sx={{ mb: 2 }} />
+              <FormControl fullWidth>
+                <InputLabel>Nutrition Quality</InputLabel>
+                <Select value={nutritionQuality} label="Nutrition Quality" onChange={e => setNutritionQuality(e.target.value)}>
+                  <MenuItem value="Excellent">Excellent</MenuItem>
+                  <MenuItem value="Good">Good</MenuItem>
+                  <MenuItem value="Fair">Fair</MenuItem>
+                  <MenuItem value="Poor">Poor</MenuItem>
+                  <MenuItem value="Very Poor">Very Poor</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            {/* Fitness Section */}
+            <Box>
+              <Typography variant="h6" color="secondary" gutterBottom>Fitness</Typography>
+              <Typography gutterBottom>Workout Motivation: {workoutMotivation}</Typography>
+              <Slider value={workoutMotivation} min={1} max={10} step={1} onChange={(_, v) => setWorkoutMotivation(v)} valueLabelDisplay="auto" sx={{ mb: 2 }} />
+              <FormControl fullWidth>
+                <InputLabel>Fitness Goal</InputLabel>
+                <Select value={fitnessGoal} label="Fitness Goal" onChange={e => setFitnessGoal(e.target.value)}>
+                  <MenuItem value="Muscle Gain">Muscle Gain</MenuItem>
+                  <MenuItem value="Fat Loss">Fat Loss</MenuItem>
+                  <MenuItem value="Endurance">Endurance</MenuItem>
+                  <MenuItem value="Strength">Strength</MenuItem>
+                  <MenuItem value="General Fitness">General Fitness</MenuItem>
+                  <MenuItem value="Recovery">Recovery</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            {/* Notes Section */}
+            <Box>
+              <Typography variant="h6" color="secondary" gutterBottom>Additional Notes</Typography>
+              <TextField
+                label="Notes (optional)"
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                placeholder="Any additional thoughts, goals, or observations..."
+                multiline
+                minRows={3}
+                maxRows={6}
+                fullWidth
+                inputProps={{ maxLength: 500 }}
+                helperText={`${notes.length}/500 characters`}
+              />
+            </Box>
+            <Button type="submit" variant="contained" color="primary" size="large" sx={{ fontWeight: 600 }}>
+              Submit Enhanced Check-In
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
 

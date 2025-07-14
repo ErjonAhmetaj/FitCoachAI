@@ -230,6 +230,77 @@ app.put("/api/weight-goal", auth, async (req, res) => {
   }
 });
 
+// --- FRIENDS FEATURE ENDPOINTS ---
+
+// Search users by username or email (for adding friends)
+app.get('/api/users/search', auth, async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query || query.length < 2) {
+      return res.json([]);
+    }
+    const users = await User.find({
+      $or: [
+        { username: { $regex: query, $options: 'i' } },
+        { email: { $regex: query, $options: 'i' } }
+      ]
+    }).select('_id username email');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to search users' });
+  }
+});
+
+// Add a friend (by userId)
+app.post('/api/friends/add', auth, async (req, res) => {
+  try {
+    const { friendId } = req.body;
+    if (!friendId || friendId === req.user._id.toString()) {
+      return res.status(400).json({ error: 'Invalid friend ID' });
+    }
+    // Check if already friends
+    if (req.user.friends.includes(friendId)) {
+      return res.status(400).json({ error: 'Already friends' });
+    }
+    // Add friend to user's friends list
+    req.user.friends.push(friendId);
+    await req.user.save();
+    // Optionally, add user to friend's friends list (bidirectional)
+    await User.findByIdAndUpdate(friendId, { $addToSet: { friends: req.user._id } });
+    res.json({ message: 'Friend added' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to add friend' });
+  }
+});
+
+// List current user's friends
+app.get('/api/friends', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate('friends', '_id username email');
+    res.json(user.friends);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get friends' });
+  }
+});
+
+// Get recent check-ins from friends
+app.get('/api/friends/checkins', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user.friends || user.friends.length === 0) {
+      return res.json([]);
+    }
+    // Get recent check-ins for all friends (last 10 per friend)
+    const checkins = await Checkin.find({ user: { $in: user.friends } })
+      .sort({ timestamp: -1 })
+      .limit(30)
+      .populate('user', 'username email');
+    res.json(checkins);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get friends check-ins' });
+  }
+});
+
 // Port
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => {
